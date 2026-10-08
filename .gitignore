@@ -3,11 +3,13 @@ backend/.gradle/
 backend/build/
 backend/bin/
 *.class
+backend/.jqwik-database
 
 # Node / Vite
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/*.tsbuildinfo
 
 # IDE
 .idea/
