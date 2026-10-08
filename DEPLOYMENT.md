@@ -81,3 +81,13 @@ See [`README.md`](README.md) for running services individually and for testing.
 | `PORT` | auto | Injected by Render; the app binds to it |
 | `CORS_ORIGINS` | recommended | Allowed browser origin(s), comma-separated |
 | `SEED_ENABLED` | no | `true` seeds a demo admin + customer once (default `false`) |
+
+## Maintainer & contact
+
+**Current Maintainer:** Jakub Kowalski ([GitHub](https://github.com/Witcher-Geralt-of-Rivia) ·
+[Portfolio](https://jakub-kowalski-portfolio.vercel.app))
+
+**Repository:** https://github.com/Witcher-Geralt-of-Rivia/Ledger-Core-Banking
+
+For project questions, maintenance requests, or bug reports, use the GitHub repository/issues or
+the portfolio contact channels.

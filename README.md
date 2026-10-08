@@ -28,6 +28,8 @@ lost or created**.
 - [Project structure](#project-structure)
 - [Security](#security)
 - [Roadmap](#roadmap)
+- [Maintainer & Contact](#maintainer--contact)
+- [Attribution](#attribution)
 - [License](#license)
 
 ---
@@ -184,6 +186,33 @@ terminate TLS in front of the service, and run the backend as the least-privileg
 - OpenAPI/Swagger documentation and a typed client
 - Observability (metrics, tracing) and CI pipeline
 
+## Maintainer & Contact
+
+**Current Maintainer:** Jakub Kowalski
+
+**GitHub:**  
+https://github.com/Witcher-Geralt-of-Rivia
+
+**Portfolio:**  
+https://jakub-kowalski-portfolio.vercel.app
+
+**Repository:**  
+https://github.com/Witcher-Geralt-of-Rivia/Ledger-Core-Banking
+
+For questions, maintenance requests, or bug reports, use the GitHub repository/issues or the
+portfolio contact channels.
+
+## Attribution
+
+This repository is a maintained copy of the open-source project
+[shahriar-ahmed-seam/Ledger-Core-Banking](https://github.com/shahriar-ahmed-seam/Ledger-Core-Banking),
+originally authored by Shahriar Ahmed and released under the MIT License.
+
+Jakub Kowalski is the current maintainer of this copy. Original copyright and license
+attribution remain preserved, unchanged, in [`LICENSE`](LICENSE). See [`NOTICE.md`](NOTICE.md)
+for details.
+
 ## License
 
-Released under the MIT License. See [`LICENSE`](LICENSE).
+Released under the MIT License. The original copyright notice is preserved unchanged. See
+[`LICENSE`](LICENSE).
