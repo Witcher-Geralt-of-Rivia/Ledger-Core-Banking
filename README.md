@@ -181,9 +181,11 @@ Ledger-Core-Banking/
   application connects as a role without `UPDATE`/`DELETE` on those tables.
 - Monetary values never use binary floating point.
 
-**Production notes:** replace the dev-generated RSA signing key with a managed key store,
-terminate TLS in front of the service, and run the backend as the least-privilege
-`ledger_app` role (already wired in `docker-compose.yml`).
+**Production notes:** supply the RS256 signing key through `JWT_PRIVATE_KEY` (see
+[`DEPLOYMENT.md`](DEPLOYMENT.md#jwt-signing-key)); without it a key is generated at startup and
+every restart invalidates outstanding access tokens. Terminate TLS in front of the service, and
+run the backend as the least-privilege `ledger_app` role (already wired in
+`docker-compose.yml`).
 
 ## Roadmap
 

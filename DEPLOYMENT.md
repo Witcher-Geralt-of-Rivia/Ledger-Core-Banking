@@ -42,6 +42,7 @@ The repository ships a Render Blueprint (`render.yaml`) and a `backend/Dockerfil
    - `DB_PASSWORD` → Neon password
    - `CORS_ORIGINS` → your Vercel site origin, without a trailing slash (e.g.
      `https://your-frontend.vercel.app`). Required: the browser calls the API cross-origin.
+   - `JWT_PRIVATE_KEY` → the RS256 signing key (see [JWT signing key](#jwt-signing-key)).
    - `SEED_ENABLED` → `true` for the first deploy to create demo data, then change to `false`
      and redeploy.
 4. Deploy. Render builds the Docker image, Flyway runs the migrations on first boot, and the
@@ -98,7 +99,28 @@ See [`README.md`](README.md) for running services individually and for testing.
 | `DB_USERNAME` / `DB_PASSWORD` | yes | Database credentials |
 | `PORT` | auto | Injected by Render; the app binds to it |
 | `CORS_ORIGINS` | yes, for a hosted frontend | Allowed browser origin(s), comma-separated |
+| `JWT_PRIVATE_KEY` | yes, in production | RS256 signing key: RSA private key, PKCS#8, base64 or PEM (see below) |
 | `SEED_ENABLED` | no | `true` seeds a demo admin + customer once (default `false`) |
+
+### JWT signing key
+
+Access tokens are signed with RS256. Set `JWT_PRIVATE_KEY` to an RSA private key of at least
+2048 bits in PKCS#8 form, either as single-line base64 of the DER encoding or as PEM
+(`-----BEGIN PRIVATE KEY-----`). The public key is derived from it, so this is the only value
+to configure. Generate one with:
+
+```bash
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -outform DER | base64 -w0
+```
+
+Keep the key in the host's secret store or a protected environment file, never in the
+repository. With the key set, a restart does not invalidate access tokens and several
+instances can share it. Replacing the key invalidates every outstanding access token; refresh
+tokens are unaffected, so clients obtain a new access token transparently.
+
+If `JWT_PRIVATE_KEY` is empty, a key is generated at startup and a warning is logged. That is
+meant for local development and tests only. A value that is set but not a valid key stops the
+application at startup rather than falling back to a generated key.
 
 ## Environment variable reference (frontend)
 

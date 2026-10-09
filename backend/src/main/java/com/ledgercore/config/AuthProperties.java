@@ -27,6 +27,11 @@ public class AuthProperties {
         /** Refresh token lifetime (Requirement 2.7: 7 days). */
         private Duration refreshTokenTtl = Duration.ofDays(7);
         private String issuer = "ledger-core-banking";
+        /**
+         * RS256 signing key: an RSA private key in PKCS#8 form, base64 (DER) or PEM. Supplied
+         * through {@code JWT_PRIVATE_KEY}. Blank means a key is generated for this run only.
+         */
+        private String privateKey;
 
         public Duration getAccessTokenTtl() {
             return accessTokenTtl;
@@ -50,6 +55,14 @@ public class AuthProperties {
 
         public void setIssuer(String issuer) {
             this.issuer = issuer;
+        }
+
+        public String getPrivateKey() {
+            return privateKey;
+        }
+
+        public void setPrivateKey(String privateKey) {
+            this.privateKey = privateKey;
         }
     }
 

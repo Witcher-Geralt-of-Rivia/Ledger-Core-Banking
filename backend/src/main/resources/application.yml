@@ -44,11 +44,15 @@ management:
 
 ledger:
   security:
-    # RS256 keys are generated at startup if not provided (dev convenience).
     jwt:
       access-token-ttl: PT15M       # Requirement 2.3
       refresh-token-ttl: P7D        # Requirement 2.7
       issuer: ledger-core-banking
+      # RS256 signing key: an RSA private key (2048 bits or more) in PKCS#8 form, as
+      # single-line base64 (DER) or PEM. Set it in production so access tokens survive
+      # restarts. When it is empty a key is generated at startup (dev convenience) and
+      # every restart invalidates outstanding access tokens. Never commit a real key.
+      private-key: ${JWT_PRIVATE_KEY:}
     login:
       max-failed-attempts: 5        # Requirement 2.9
       lockout-window: PT15M         # Requirement 2.9

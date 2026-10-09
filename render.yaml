@@ -22,6 +22,8 @@ services:
       # --- Application ---
       - key: CORS_ORIGINS    # the Vercel site origin, e.g. https://your-frontend.vercel.app
         sync: false
+      - key: JWT_PRIVATE_KEY # RS256 signing key (PKCS#8, base64); see DEPLOYMENT.md. Set as a secret.
+        sync: false
       - key: SEED_ENABLED    # "true" once, to seed demo data; then set back to "false"
         value: "false"
       - key: JAVA_TOOL_OPTIONS
