@@ -4,6 +4,7 @@ import com.ledgercore.common.error.DomainException;
 import com.ledgercore.common.error.ErrorCode;
 import com.ledgercore.common.error.FieldError;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -36,6 +37,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpMessageNotReadableException.class, MissingRequestHeaderException.class})
     public ResponseEntity<Envelopes.Error> handleMalformed(Exception ex) {
         return build(ErrorCode.VALIDATION_ERROR, "Malformed or incomplete request.", List.of());
+    }
+
+    /**
+     * Method-level authorization failures ({@code @PreAuthorize}) are thrown from inside the
+     * controller call, so they reach this advice instead of the security filter chain. They
+     * are mapped here to the same 403 the filter chain produces; without this the catch-all
+     * below would report an authorization failure as a server error.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Envelopes.Error> handleAccessDenied(AccessDeniedException ex) {
+        return build(ErrorCode.AUTHORIZATION_ERROR, "Insufficient permission.", List.of());
     }
 
     @ExceptionHandler(Exception.class)
