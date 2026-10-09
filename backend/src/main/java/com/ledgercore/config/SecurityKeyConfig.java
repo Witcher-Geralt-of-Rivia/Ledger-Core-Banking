@@ -83,7 +83,8 @@ public class SecurityKeyConfig {
         } catch (IllegalArgumentException | GeneralSecurityException e) {
             // Deliberately no cause and no input in the message: both could expose key material.
             throw new IllegalStateException("JWT_PRIVATE_KEY is not a valid PKCS#8 RSA private key "
-                    + "(expected base64 DER or PEM).");
+                    + "(expected base64 DER or PEM). A key in the older PKCS#1 form has to be "
+                    + "converted first: openssl pkcs8 -topk8 -nocrypt.");
         }
     }
 

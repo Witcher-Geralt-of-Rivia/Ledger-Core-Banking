@@ -110,8 +110,12 @@ Access tokens are signed with RS256. Set `JWT_PRIVATE_KEY` to an RSA private key
 to configure. Generate one with:
 
 ```bash
-openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -outform DER | base64 -w0
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 \
+  | openssl pkcs8 -topk8 -nocrypt -outform DER | base64 -w0
 ```
+
+The `pkcs8 -topk8` step is required. On its own, `openssl genpkey -outform DER` writes the
+older PKCS#1 encoding, which the application rejects at startup.
 
 Keep the key in the host's secret store or a protected environment file, never in the
 repository. With the key set, a restart does not invalidate access tokens and several

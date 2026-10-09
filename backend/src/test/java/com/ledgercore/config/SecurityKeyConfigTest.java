@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -117,6 +118,19 @@ class SecurityKeyConfigTest {
                 "-----BEGIN RSA PRIVATE KEY-----\nAAAA\n-----END RSA PRIVATE KEY-----"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("PKCS#8");
+    }
+
+    @Test
+    void bareBase64Pkcs1KeyIsRejectedWithTheConversionHint() throws Exception {
+        // What `openssl genpkey -outform DER` writes: the RSAPrivateKey structure without its
+        // PKCS#8 wrapper, which for keys of this size is a fixed 26-byte header.
+        byte[] pkcs8 = rsa(2048).getPrivate().getEncoded();
+        String pkcs1 = Base64.getEncoder().encodeToString(Arrays.copyOfRange(pkcs8, 26, pkcs8.length));
+
+        assertThatThrownBy(() -> SecurityKeyConfig.fromPkcs8(pkcs1))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("pkcs8 -topk8")
+                .satisfies(e -> assertThat(e.getMessage()).doesNotContain(pkcs1));
     }
 
     private static JwtService jwtServiceFor(AuthProperties props) {
