@@ -12,6 +12,9 @@ The frontend takes the backend origin from the `VITE_API_BASE_URL` environment v
 build time and calls the API cross-origin, so the backend must list the frontend's origin in
 `CORS_ORIGINS`. No backend URL is committed to this repository.
 
+To run the backend on your own server instead of Render, see
+[Self-hosting the backend](#self-hosting-the-backend).
+
 ---
 
 ## 1. Database — Neon
@@ -83,6 +86,45 @@ If you change the Vercel domain later, update `CORS_ORIGINS` on Render to match.
 
 ---
 
+## Self-hosting the backend
+
+Render and Neon are one option. The backend also runs as a plain jar on any host with JDK 21
+and PostgreSQL 16.
+
+1. **Database and roles.** Create the database, a role that owns it and runs the Flyway
+   migrations, and the least-privilege role `ledger_app` that the application uses at runtime.
+   `ledger_app` has to exist before the first start, because migration `V3` grants it
+   insert-and-read access to the ledger and audit tables only when the role is present:
+   ```sql
+   CREATE ROLE ledger_admin WITH LOGIN PASSWORD '<owner-password>';
+   CREATE ROLE ledger_app   WITH LOGIN PASSWORD '<app-password>';
+   CREATE DATABASE ledgercore OWNER ledger_admin;
+   GRANT CONNECT ON DATABASE ledgercore TO ledger_app;
+   ```
+   [`deploy/postgres-init/01-roles.sql`](deploy/postgres-init/01-roles.sql) does the same for
+   Docker Compose.
+2. **Build.** `cd backend && ./gradlew clean bootJar` (`gradlew.bat` on Windows) writes
+   `backend/build/libs/ledger-core-banking-0.1.0.jar`.
+3. **Configure.** Set the variables from the reference below: `DB_URL`,
+   `DB_USERNAME=ledger_app`, `DB_PASSWORD`, `DB_ADMIN_USERNAME=ledger_admin`,
+   `DB_ADMIN_PASSWORD`, `CORS_ORIGINS`, `JWT_PRIVATE_KEY`, and `PORT` when 8080 is taken. Keep
+   them in the host's secret store or a protected environment file.
+4. **Run.** `java -jar ledger-core-banking-0.1.0.jar`. Flyway applies the migrations on the
+   first start. The health check is `GET /actuator/health` and the API is under `/api/v1`.
+5. **TLS.** Terminate TLS in a reverse proxy and forward `/api/` and `/actuator/health` to the
+   service. Behind a proxy, also pass
+   `--server.address=127.0.0.1 --server.forward-headers-strategy=native` so the service
+   listens on loopback only and trusts the proxy's forwarded headers.
+6. **First administrator.** Registration always creates a `CUSTOMER`. Register the account
+   through `POST /api/v1/auth/register`, then promote it once as the database owner:
+   ```sql
+   UPDATE users SET role = 'ADMIN' WHERE email_normalized = '<email in lower case>';
+   ```
+   The account has to log in again to receive a token with the new role. Later role changes go
+   through `PUT /api/v1/users/{id}/role`, which requires an administrator.
+
+---
+
 ## Local development
 
 ```bash
@@ -96,8 +138,10 @@ See [`README.md`](README.md) for running services individually and for testing.
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DB_URL` | yes | JDBC URL to PostgreSQL (`sslmode=require` for Neon) |
-| `DB_USERNAME` / `DB_PASSWORD` | yes | Database credentials |
-| `PORT` | auto | Injected by Render; the app binds to it |
+| `DB_USERNAME` / `DB_PASSWORD` | yes | Database credentials the application connects with |
+| `DB_ADMIN_USERNAME` / `DB_ADMIN_PASSWORD` | no | Credentials Flyway uses to run the migrations. They default to `DB_USERNAME` / `DB_PASSWORD`; set them to the schema owner when the application runs as the least-privilege `ledger_app` role |
+| `DB_POOL_SIZE` | no | Maximum size of the connection pool (default `20`) |
+| `PORT` | auto | Injected by Render; the app binds to it. `SERVER_PORT` is read when `PORT` is unset (default `8080`) |
 | `CORS_ORIGINS` | yes, for a hosted frontend | Allowed browser origin(s), comma-separated |
 | `JWT_PRIVATE_KEY` | yes, in production | RS256 signing key: RSA private key, PKCS#8, base64 or PEM (see below) |
 | `SEED_ENABLED` | no | `true` seeds a demo admin + customer once (default `false`) |
