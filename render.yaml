@@ -20,7 +20,7 @@ services:
       - key: DB_PASSWORD
         sync: false
       # --- Application ---
-      - key: CORS_ORIGINS    # the Vercel site origin, e.g. https://ledger-core-banking.vercel.app
+      - key: CORS_ORIGINS    # the Vercel site origin, e.g. https://your-frontend.vercel.app
         sync: false
       - key: SEED_ENABLED    # "true" once, to seed demo data; then set back to "false"
         value: "false"

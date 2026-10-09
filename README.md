@@ -117,6 +117,12 @@ cd backend && ./gradlew bootRun
 cd frontend && npm install && npm run dev
 ```
 
+### Deploy
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) for Neon, Render and Vercel. The dashboard deploys from
+the `frontend` directory (build `npm run build`, output `dist`) and takes the backend origin
+from the `VITE_API_BASE_URL` environment variable. No backend URL is committed to this
+repository.
+
 ## Testing
 
 ```bash

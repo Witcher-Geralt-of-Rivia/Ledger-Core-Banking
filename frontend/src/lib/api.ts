@@ -2,12 +2,21 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { tokenStore } from './tokenStore';
 
 /**
+ * Where the API lives. VITE_API_BASE_URL is the backend origin, for deployments that serve
+ * the dashboard from a different origin than the API (e.g. a static host such as Vercel).
+ * Left unset, requests stay same-origin and rely on a reverse proxy forwarding /api to the
+ * backend (the Vite dev server, or nginx in the Docker image).
+ */
+const API_ORIGIN = (import.meta.env.VITE_API_BASE_URL ?? '').trim().replace(/\/+$/, '');
+const API_BASE_URL = `${API_ORIGIN}/api/v1`;
+
+/**
  * The API client. A request interceptor attaches the access token (Requirement 13.3); a
  * response interceptor transparently refreshes on 401 and retries once (Requirement 13.4),
  * and ends the session if the refresh token is rejected (Requirement 13.5).
  */
 export const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: API_BASE_URL,
   // Generous default so a cold-started backend (free hosting can take ~60-90s to wake)
   // doesn't fail the first request. The transfer call overrides this with a 30s timeout
   // to honor the dashboard's transfer timeout requirement.
@@ -34,7 +43,7 @@ async function refreshAccessToken(): Promise<string> {
     throw new Error('no refresh token');
   }
   // Use a bare axios call to avoid recursive interceptors.
-  const { data } = await axios.post('/api/v1/auth/refresh', { refreshToken });
+  const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
   const newAccess = data.data.accessToken as string;
   tokenStore.setAccessToken(newAccess);
   return newAccess;

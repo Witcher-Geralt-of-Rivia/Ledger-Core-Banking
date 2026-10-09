@@ -23,6 +23,7 @@ Thumbs.db
 # Env
 .env
 .env.local
+.env.*.local
 
 # Kiro spec workspace (kept locally, not published)
 .kiro/
